@@ -34,9 +34,6 @@
             </intent-filter>
         </service>
 
-        <meta-data
-            android:name="com.google.android.gms.version"
-            android:value="@integer/google_play_services_version"/>
 
         <service
             android:name=".MyDataService"
@@ -62,12 +59,8 @@
             -->
             <meta-data
                 android:name="android.support.wearable.complications.UPDATE_PERIOD_SECONDS"
-                android:value="60"/>
+                android:value="120"/>
         </service>
-
-        <uses-library
-            android:name="com.google.android.wearable"
-            android:required="false"/>
 
         <activity
             android:name=".WatchFaceConfigActivity"

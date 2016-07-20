@@ -19,18 +19,10 @@ public class MyDataService extends ComplicationProviderService {
     private Random random = new Random();
 
     @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
-        if (intent.getAction().equals(TAP_ACTION)) {
-            new ProviderUpdateRequester(getApplicationContext(), new ComponentName(getApplicationContext(), MyDataService.class)).requestUpdateAll();
-        }
-        return super.onStartCommand(intent, flags, startId);
-    }
-
-    @Override
     public void onComplicationUpdate(int i, int type, ComplicationManager complicationManager) {
-        Log.i(TAG, String.format("complication update: %d %d", i, type));
         int value = random.nextInt(1000);
         String testText = String.format("r: %d", value);
+        Log.i(TAG, String.format("complication update: %s", testText));
         ComplicationData data = null;
         switch (type) {
             case ComplicationData.TYPE_SHORT_TEXT: {
@@ -55,7 +47,6 @@ public class MyDataService extends ComplicationProviderService {
                 break;
             }
         }
-
         complicationManager.updateComplicationData(i, data);
     }
 }

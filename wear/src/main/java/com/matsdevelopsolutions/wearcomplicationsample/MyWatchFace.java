@@ -37,9 +37,11 @@ import android.os.Message;
 import android.support.v7.graphics.Palette;
 import android.support.wearable.complications.ComplicationData;
 import android.support.wearable.complications.ProviderChooserIntent;
+import android.support.wearable.complications.ProviderUpdateRequester;
 import android.support.wearable.watchface.CanvasWatchFaceService;
 import android.support.wearable.watchface.WatchFaceService;
 import android.support.wearable.watchface.WatchFaceStyle;
+import android.util.Log;
 import android.view.SurfaceHolder;
 
 import java.lang.ref.WeakReference;
@@ -61,6 +63,7 @@ public class MyWatchFace extends CanvasWatchFaceService {
      * second hand.
      */
     private static final long INTERACTIVE_UPDATE_RATE_MS = TimeUnit.SECONDS.toMillis(1);
+    private static final String TAG = "MyWatchFace";
 
     public String complicationAText = "test";
     public float value = 0;
@@ -217,11 +220,19 @@ public class MyWatchFace extends CanvasWatchFaceService {
                     value = data.getValue();
                     minValue = data.getMinValue();
                     maxValue = data.getMaxValue();
+                    complicationAText = data.getShortText().getText(getApplicationContext(), System.currentTimeMillis()).toString();
+                    break;
                 case ComplicationData.TYPE_SHORT_TEXT:
+                    value = minValue - 1;
                     complicationAText = data.getShortText().getText(getApplicationContext(), System.currentTimeMillis()).toString();
                     break;
                 case ComplicationData.TYPE_LONG_TEXT:
+                    value = minValue - 1;
                     complicationAText = data.getLongText().getText(getApplicationContext(), System.currentTimeMillis()).toString();
+                    break;
+                case ComplicationData.TYPE_NOT_CONFIGURED:
+                    value = minValue - 1;
+                    complicationAText = "";
                     break;
             }
         }
@@ -331,6 +342,10 @@ public class MyWatchFace extends CanvasWatchFaceService {
                     if (x > mCenterX && y < mCenterX * 1.5f && y > mCenterX * 0.5f) {
                         Intent intent = WatchFaceConfigActivity.createIntent(TEST_COMPLICATION_A, new ComponentName(getApplicationContext(), MyWatchFace.class));
                         startActivity(intent);
+                    } else {
+                        ProviderUpdateRequester requester = new ProviderUpdateRequester(getApplicationContext(), new ComponentName(getApplicationContext(), MyDataService.class));
+                        requester.requestUpdate(MyWatchFace.TEST_COMPLICATION_A);
+                        Log.i(TAG, "Requesting update for complication A");
                     }
                     break;
             }
@@ -429,13 +444,15 @@ public class MyWatchFace extends CanvasWatchFaceService {
                 canvas.drawRect(mPeekCardBounds, mBackgroundPaint);
             }
 
-            Path arcPath = new Path();
-            arcPath.moveTo(mCenterX, mCenterY);
-            arcPath.lineTo(mCenterX * 0.5f, mCenterY * 0.5f);
-            arcPath.addArc(mCenterX * 0.5f, mCenterY * 0.5f, mCenterX * 1.5f, mCenterY * 1.5f, 135, (270) * (value / maxValue));
-            arcPath.lineTo(mCenterX, mCenterY);
-            canvas.drawArc(mCenterX * 0.5f, mCenterY * 0.5f, mCenterX * 1.5f, mCenterY * 1.5f, 135, 270, true, mSecondPaint);
-            canvas.drawPath(arcPath, textPaint);
+            if (value > minValue) {
+                Path arcPath = new Path();
+                arcPath.moveTo(mCenterX, mCenterY);
+                arcPath.lineTo(mCenterX * 0.5f, mCenterY * 0.5f);
+                arcPath.addArc(mCenterX * 0.5f, mCenterY * 0.5f, mCenterX * 1.5f, mCenterY * 1.5f, 135, (270) * (value / maxValue));
+                arcPath.lineTo(mCenterX, mCenterY);
+                canvas.drawArc(mCenterX * 0.5f, mCenterY * 0.5f, mCenterX * 1.5f, mCenterY * 1.5f, 135, 270, true, mSecondPaint);
+                canvas.drawPath(arcPath, textPaint);
+            }
             canvas.drawText(complicationAText, bounds.width() * 0.75f, bounds.centerY(), textPaint);
         }
 

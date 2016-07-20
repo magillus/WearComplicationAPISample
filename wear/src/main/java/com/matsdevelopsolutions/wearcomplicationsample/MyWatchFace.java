@@ -27,7 +27,9 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.ColorMatrix;
 import android.graphics.ColorMatrixColorFilter;
+import android.graphics.MaskFilter;
 import android.graphics.Paint;
+import android.graphics.Path;
 import android.graphics.Rect;
 import android.os.Bundle;
 import android.os.Handler;
@@ -60,7 +62,10 @@ public class MyWatchFace extends CanvasWatchFaceService {
      */
     private static final long INTERACTIVE_UPDATE_RATE_MS = TimeUnit.SECONDS.toMillis(1);
 
-    public String complicationAText =  "test";
+    public String complicationAText = "test";
+    public float value = 0;
+    public float minValue = 0;
+    public float maxValue = 100;
 
     /**
      * Handler message id for updating the time periodically in interactive mode.
@@ -208,8 +213,16 @@ public class MyWatchFace extends CanvasWatchFaceService {
         public void onComplicationDataUpdate(int watchFaceComplicationId, ComplicationData data) {
             super.onComplicationDataUpdate(watchFaceComplicationId, data);
             switch (data.getType()) {
+                case ComplicationData.TYPE_RANGED_VALUE:
+                    value = data.getValue();
+                    minValue = data.getMinValue();
+                    maxValue = data.getMaxValue();
                 case ComplicationData.TYPE_SHORT_TEXT:
                     complicationAText = data.getShortText().getText(getApplicationContext(), System.currentTimeMillis()).toString();
+                    break;
+                case ComplicationData.TYPE_LONG_TEXT:
+                    complicationAText = data.getLongText().getText(getApplicationContext(), System.currentTimeMillis()).toString();
+                    break;
             }
         }
 
@@ -315,8 +328,10 @@ public class MyWatchFace extends CanvasWatchFaceService {
                     break;
                 case TAP_TYPE_TAP:
                     // The user has completed the tap gesture.
-                    Intent intent = WatchFaceConfigActivity.createIntent(TEST_COMPLICATION_A, new ComponentName(getApplicationContext(), MyWatchFace.class));
-                    startActivity(intent);
+                    if (x > mCenterX && y < mCenterX * 1.5f && y > mCenterX * 0.5f) {
+                        Intent intent = WatchFaceConfigActivity.createIntent(TEST_COMPLICATION_A, new ComponentName(getApplicationContext(), MyWatchFace.class));
+                        startActivity(intent);
+                    }
                     break;
             }
             invalidate();
@@ -414,7 +429,14 @@ public class MyWatchFace extends CanvasWatchFaceService {
                 canvas.drawRect(mPeekCardBounds, mBackgroundPaint);
             }
 
-            canvas.drawText(complicationAText, bounds.width()*0.75f, bounds.centerY(), textPaint);
+            Path arcPath = new Path();
+            arcPath.moveTo(mCenterX, mCenterY);
+            arcPath.lineTo(mCenterX * 0.5f, mCenterY * 0.5f);
+            arcPath.addArc(mCenterX * 0.5f, mCenterY * 0.5f, mCenterX * 1.5f, mCenterY * 1.5f, 135, (270) * (value / maxValue));
+            arcPath.lineTo(mCenterX, mCenterY);
+            canvas.drawArc(mCenterX * 0.5f, mCenterY * 0.5f, mCenterX * 1.5f, mCenterY * 1.5f, 135, 270, true, mSecondPaint);
+            canvas.drawPath(arcPath, textPaint);
+            canvas.drawText(complicationAText, bounds.width() * 0.75f, bounds.centerY(), textPaint);
         }
 
         @Override

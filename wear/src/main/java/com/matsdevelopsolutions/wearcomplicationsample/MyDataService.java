@@ -27,13 +27,34 @@ public class MyDataService extends ComplicationProviderService {
     }
 
     @Override
-    public void onComplicationUpdate(int i, int i1, ComplicationManager complicationManager) {
-        Log.i(TAG, String.format("complication update: %d %d", i, i1));
-        String testText = String.format("r: %d", random.nextInt(999));
-
-        ComplicationData data = new ComplicationData.Builder(ComplicationData.TYPE_SHORT_TEXT)
-                .setTapAction(PendingIntent.getService(getApplicationContext(), 0, new Intent(TAP_ACTION), PendingIntent.FLAG_ONE_SHOT))
-                .setShortText(ComplicationText.plainText(testText)).build();
+    public void onComplicationUpdate(int i, int type, ComplicationManager complicationManager) {
+        Log.i(TAG, String.format("complication update: %d %d", i, type));
+        int value = random.nextInt(1000);
+        String testText = String.format("r: %d", value);
+        ComplicationData data = null;
+        switch (type) {
+            case ComplicationData.TYPE_SHORT_TEXT: {
+                data = new ComplicationData.Builder(ComplicationData.TYPE_SHORT_TEXT)
+                        .setTapAction(PendingIntent.getService(getApplicationContext(), 0, new Intent(TAP_ACTION), PendingIntent.FLAG_ONE_SHOT))
+                        .setShortText(ComplicationText.plainText(testText)).build();
+                break;
+            }
+            case ComplicationData.TYPE_RANGED_VALUE: {
+                data = new ComplicationData.Builder(ComplicationData.TYPE_RANGED_VALUE)
+                        .setTapAction(PendingIntent.getService(getApplicationContext(), 0, new Intent(TAP_ACTION), PendingIntent.FLAG_ONE_SHOT))
+                        .setMinValue(0)
+                        .setMaxValue(1000)
+                        .setValue(value)
+                        .setShortText(ComplicationText.plainText(testText)).build();
+                break;
+            }
+            case ComplicationData.TYPE_LONG_TEXT: {
+                data = new ComplicationData.Builder(ComplicationData.TYPE_LONG_TEXT)
+                        .setTapAction(PendingIntent.getService(getApplicationContext(), 0, new Intent(TAP_ACTION), PendingIntent.FLAG_ONE_SHOT))
+                        .setLongText(ComplicationText.plainText(testText)).build();
+                break;
+            }
+        }
 
         complicationManager.updateComplicationData(i, data);
     }

@@ -179,7 +179,7 @@ public class MyWatchFace extends CanvasWatchFaceService {
 
             textPaint = new Paint(mMinutePaint);
             textPaint.setTextAlign(Paint.Align.CENTER);
-            textPaint.setTextSize(12f);
+            textPaint.setTextSize(20f);
 
             mTickAndCirclePaint = new Paint();
             mTickAndCirclePaint.setColor(mWatchHandColor);
@@ -315,13 +315,8 @@ public class MyWatchFace extends CanvasWatchFaceService {
                     break;
                 case TAP_TYPE_TAP:
                     // The user has completed the tap gesture.
-
-                    Intent intent = ProviderChooserIntent.createProviderChooserIntent(new ComponentName(getApplicationContext(), MyWatchFace.class),
-                            TEST_COMPLICATION_A,
-                            ComplicationData.TYPE_RANGED_VALUE, ComplicationData.TYPE_LONG_TEXT,
-                            ComplicationData.TYPE_SHORT_TEXT, ComplicationData.TYPE_ICON);
+                    Intent intent = WatchFaceConfigActivity.createIntent(TEST_COMPLICATION_A, new ComponentName(getApplicationContext(), MyWatchFace.class));
                     startActivity(intent);
-
                     break;
             }
             invalidate();
@@ -419,7 +414,7 @@ public class MyWatchFace extends CanvasWatchFaceService {
                 canvas.drawRect(mPeekCardBounds, mBackgroundPaint);
             }
 
-            canvas.drawText(complicationAText, bounds.centerX(), bounds.centerY(), textPaint);
+            canvas.drawText(complicationAText, bounds.width()*0.75f, bounds.centerY(), textPaint);
         }
 
         @Override

@@ -42,7 +42,6 @@
             android:name=".MyDataService"
             android:icon="@android:drawable/btn_plus"
             android:label="Random Number">
-
             <intent-filter>
                 <action android:name="android.support.wearable.complications.ACTION_COMPLICATION_UPDATE_REQUEST"/>
             </intent-filter>
@@ -65,6 +64,20 @@
                 android:name="android.support.wearable.complications.UPDATE_PERIOD_SECONDS"
                 android:value="60"/>
         </service>
+
+        <uses-library
+            android:name="com.google.android.wearable"
+            android:required="false"/>
+
+        <activity
+            android:name=".WatchFaceConfigActivity"
+            android:label="@string/title_activity_watch_face_config"
+            android:theme="@android:style/Theme.DeviceDefault.Light">
+            <intent-filter>
+                <action android:name="com.matsdevelopsolutions.watchmode.ACTION_SELECT_SAMPLE_PROVIDER"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+        </activity>
     </application>
 
 </manifest>

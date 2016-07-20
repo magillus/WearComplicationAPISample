@@ -2,4 +2,6 @@
     <string name="app_name">WearComplicationSample</string>
     <string name="message">Watch face tapped</string>
     <string name="my_analog_name">My Analog</string>
+    <string name="title_activity_watch_face_config">WatchFaceConfigActivity</string>
+    <string name="hello_world">Hello World!</string>
 </resources>
